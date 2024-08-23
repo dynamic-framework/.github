@@ -20,14 +20,16 @@ jobs:
         with:
           script: |
             const siteId = process.env.SITE_ID;
-            if (!siteId) {
+            const widgetName = process.env.WIDGET_NAME;
+            if (!siteId || !widgetName) {
               core.setOutput('secrets-verified', 'false');
-              core.setFailed('MODYO_SITE_ID_CATALOG secret is not set.');
+              core.setFailed('MODYO_SITE_ID_CATALOG or MODYO_WIDGET_NAME_CATALOG secret is not set.');
             } else {
               core.setOutput('secrets-verified', 'true');
             }
         env:
           SITE_ID: ${{secrets.MODYO_SITE_ID_CATALOG}}
+          WIDGET_NAME: ${{secrets.MODYO_WIDGET_NAME_CATALOG}}
 
   process:
     name: build and push Catalog
@@ -42,10 +44,6 @@ jobs:
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
-        with:
-          node-version-file: '.nvmrc'
-          registry-url: https://npm.pkg.github.com/
-          scope: '@modyo-dynamic'
 
       - name: Install @modyo/cli
         run: npm install -g "@modyo/cli@latest"
@@ -69,7 +67,7 @@ jobs:
           MODYO_VERSION: ${{secrets.MODYO_VERSION}}
           MODYO_TOKEN: ${{secrets.MODYO_TOKEN}}
           MODYO_SITE_ID: ${{secrets.MODYO_SITE_ID_CATALOG}}
-          MODYO_WIDGET_NAME: ${{secrets.MODYO_WIDGET_NAME}}
+          MODYO_WIDGET_NAME: ${{secrets.MODYO_WIDGET_NAME_CATALOG}}
           MODYO_BUILD_DIRECTORY: ${{secrets.MODYO_BUILD_DIRECTORY}}
           MODYO_DISABLE_LIQUID_REGEX: ${{secrets.MODYO_DISABLE_LIQUID_REGEX}}
 
