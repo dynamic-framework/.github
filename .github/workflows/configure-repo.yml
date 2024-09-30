@@ -3,15 +3,11 @@ name: Configure Repository
 on:
   workflow_call:
 
-permissions:
-  actions: write
-  contents: write
-
 env:
   DF_ORG: 'dynamic-framework'
   DF_ADMINS: 'dynamic-framework-admins'
   DF_TEAM: 'dynamic-framework-team'
-  GH_TOKEN: ${{ secrets.REPO_TOKEN }} #Organization token -> permission -> admin:org
+  GH_TOKEN: ${{ secrets.REPO_TOKEN }} #Organization token -> permissions -> repo, write:org
 
 jobs:
   configure:
