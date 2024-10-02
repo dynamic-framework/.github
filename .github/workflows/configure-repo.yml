@@ -22,19 +22,22 @@ jobs:
         run: npm install jsonwebtoken
 
       - name: Generate token
+        uses: actions/github-script@v7
         id: generate-token
-        run: |
-          const jwt = require('jsonwebtoken');
-          const now = Math.floor(Date.now() / 1000);
-          const payload = {
-            iat: now, 
-            exp: now + 200,
-            iss: process.env.APP_ID, 
-          };
+        with:
+          script: |
+            const jwt = require('jsonwebtoken');
+            const now = Math.floor(Date.now() / 1000);
+            const payload = {
+              iat: now, 
+              exp: now + 200,
+              iss: process.env.APP_ID, 
+            };
 
-          const privateKey = process.env.APP_PRIVATE_KEY.replace(/\\n/g, '\n');
-          const token = jwt.sign(payload, privateKey, { algorithm: 'RS256' });
-          console.log(`::set-output name=token::${token}`);
+            const privateKey = process.env.APP_PRIVATE_KEY.replace(/\\n/g, '\n');
+            const token = jwt.sign(payload, privateKey, { algorithm: 'RS256' });
+            console.log('Set token');
+            core.setOutput('token', token);
         env:
           APP_ID: ${{ vars.APP_ID }}
           APP_PRIVATE_KEY: ${{ secrets.APP_PRIVATE_KEY }}
