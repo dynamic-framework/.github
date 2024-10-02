@@ -13,12 +13,31 @@ jobs:
     name: 'Configure project with initial rules'
     runs-on: ubuntu-latest
     steps:
-      - name: Generate new github app token
-        id: generate-token
-        uses: actions/create-github-app-token@v1
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
         with:
-          app-id: ${{ vars.APP_ID }}
-          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+          node-version: '20'
+
+      - name: Install jsonwebtoken
+        run: npm install jsonwebtoken
+
+      - name: Generate token
+        id: generate-token
+        run: |
+          const jwt = require('jsonwebtoken');
+          const now = Math.floor(Date.now() / 1000);
+          const payload = {
+            iat: now, 
+            exp: now + 200,
+            iss: process.env.APP_ID, 
+          };
+
+          const privateKey = process.env.APP_PRIVATE_KEY.replace(/\\n/g, '\n');
+          const token = jwt.sign(payload, privateKey, { algorithm: 'RS256' });
+          console.log(`::set-output name=token::${token}`);
+        env:
+          APP_ID: ${{ vars.APP_ID }}
+          APP_PRIVATE_KEY: ${{ secrets.APP_PRIVATE_KEY }}
 
       - name: Checkout code
         uses: actions/checkout@v4
