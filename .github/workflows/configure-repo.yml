@@ -21,9 +21,9 @@ jobs:
         id: generate-token
         with:
           script: |
-            import { App } from "octokit";
+            const octo = require("octokit");
 
-            const app = new App({
+            const app = new octo.App({
               appId: process.env.APP_ID,
               privateKey: process.env.APP_PRIVATE_KEY,
             });
