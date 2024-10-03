@@ -1,0 +1,57 @@
+name: Configure Repository
+
+on:
+  workflow_call:
+
+jobs:
+  configure:
+    name: 'Configure project with initial rules'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install octokit
+        run: npm install octokit
+
+      - name: Run octokit app
+        run: |
+          node -e "import { App } from 'octokit';
+
+          const app = new App({
+            appId: process.env.APP_ID,
+            privateKey: process.env.APP_PRIVATE_KEY,
+          });
+
+          async function configureTeams() {
+            try {
+              await app.octokit.request('PUT /orgs/{org}/teams/{team_slug}/repos/{ownerrepo}', {
+                org: process.env.DF_ORG,
+                team_slug: process.env.DF_TEAM,
+                ownerrepo: process.env.REPO,
+                permission: 'push',
+                headers: {
+                  'X-GitHub-Api-Version': '2022-11-28'
+                  }
+              });
+              console.error("Done!");
+            } catch (error) {
+              console.error("Error:", error);
+            }
+          }
+
+          configureTeams();"
+        env:
+          APP_ID: ${{ vars.APP_ID }}
+          APP_PRIVATE_KEY: ${{ secrets.APP_PRIVATE_KEY }}
+          DF_ORG: 'dynamic-framework'
+          DF_ADMINS: 'dynamic-framework-admins'
+          DF_TEAM: 'dynamic-framework-team'
+          REPO: ${{ github.repository }}
