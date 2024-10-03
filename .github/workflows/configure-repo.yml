@@ -11,7 +11,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '20'
+          node-version: '18'
 
       - name: Install octokit
         run: npm install octokit
@@ -21,9 +21,9 @@ jobs:
         id: generate-token
         with:
           script: |
-            const octo = require("octokit");
+            import { App } from "octokit";
 
-            const app = new octo.App({
+            const app = new App({
               appId: process.env.APP_ID,
               privateKey: process.env.APP_PRIVATE_KEY,
             });
