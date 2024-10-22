@@ -24,10 +24,12 @@ jobs:
         run: npm install
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Lint package
-        run: npm run eslint
-      - name: Stylelint package
-        run: npm run stylelint
+      - name: eslint check
+        run: npm run eslint --if-present
+      - name: stylelint check
+        run: npm run stylelint --if-present
+      - name: lint check
+        run: npm run lint --if-present
       - name: Validate PR commits
         run: npx commitlint --from ${{ github.event.pull_request.head.sha }}~${{ github.event.pull_request.commits }} --to ${{ github.event.pull_request.head.sha }} --verbose
       - name: Test package
