@@ -1,0 +1,63 @@
+name: Build and publish
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+  packages: read
+
+jobs:
+  process:
+    name: Build and Push
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+
+      - name: Install @modyo/cli
+        run: npm install -g "@modyo/cli@latest"
+
+      - name: Install dependencies
+        run: npm install
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+      
+      - name: Remove dynamic import
+        run: |
+          sed -i '/import.*@dynamic-framework\/ui-react\/dist\/css\/dynamic-ui\.css/d' src/index.tsx
+
+      - name: Build package
+        run: npm run build
+        env:
+          MODYO_DISABLE_LIQUID_REGEX: ${{secrets.MODYO_DISABLE_LIQUID_REGEX}}
+          MODYO_BUILD_DIRECTORY: ${{secrets.MODYO_BUILD_DIRECTORY}}
+
+      - name: Push to Dynamic Demo
+        run: npm run push
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          MODYO_ACCOUNT_URL: ${{secrets.MODYO_ACCOUNT_URL}}
+          MODYO_VERSION: ${{secrets.MODYO_VERSION}}
+          MODYO_TOKEN: ${{secrets.MODYO_TOKEN}}
+          MODYO_SITE_ID: ${{secrets.MODYO_SITE_ID_DEMO}}
+          MODYO_WIDGET_NAME: ${{secrets.MODYO_WIDGET_NAME_DEMO}}
+          MODYO_BUILD_DIRECTORY: ${{secrets.MODYO_BUILD_DIRECTORY}}
+          MODYO_DISABLE_LIQUID_REGEX: ${{secrets.MODYO_DISABLE_LIQUID_REGEX}}
+      
+      - name: Push to Dynamic Catalog
+        run: npm run push
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          MODYO_ACCOUNT_URL: ${{secrets.MODYO_ACCOUNT_URL}}
+          MODYO_VERSION: ${{secrets.MODYO_VERSION}}
+          MODYO_TOKEN: ${{secrets.MODYO_TOKEN}}
+          MODYO_SITE_ID: ${{secrets.MODYO_SITE_ID_CATALOG}}
+          MODYO_WIDGET_NAME: ${{secrets.MODYO_WIDGET_NAME_CATALOG}}
+          MODYO_BUILD_DIRECTORY: ${{secrets.MODYO_BUILD_DIRECTORY}}
+          MODYO_DISABLE_LIQUID_REGEX: ${{secrets.MODYO_DISABLE_LIQUID_REGEX}}
