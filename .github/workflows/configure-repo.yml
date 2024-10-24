@@ -6,20 +6,62 @@ jobs:
   configure:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Generate new github app token
+        id: generate-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ vars.APP_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+
       - name: Set up teams
         run: |
-          gh api -X PUT /orgs/dynamic-framework/teams/dynamic-framework-admins/repos/${{ github.repository }} --field permission=admin
-          gh api -X PUT /orgs/dynamic-framework/teams/dynamic-framework-team/repos/${{ github.repository }} --field permission=push
+          gh api \
+          -X PUT \
+          -H "Accept: application/vnd.github+json" \
+          -H "X-GitHub-Api-Version: 2022-11-28" \
+          /orgs/${{ env.DF_ORG }}/teams/${{ env.DF_TEAM }}/repos/${{ github.repository }} \
+          -f "permission=push"
 
-      - name: Enable auto-delete branches after merge
+          gh api \
+          -X PUT \
+          -H "Accept: application/vnd.github+json" \
+          -H "X-GitHub-Api-Version: 2022-11-28" \
+          /orgs/${{ env.DF_ORG }}/teams/${{ env.DF_ADMINS }}/repos/${{ github.repository }} \
+          -f "permission=admin"
+        env:
+          GH_TOKEN: ${{ steps.generate-token.outputs.token }}
+          DF_ORG: 'dynamic-framework'
+          DF_ADMINS: 'dynamic-framework-admins'
+          DF_TEAM: 'dynamic-framework-team'
+
+      - name: Update repository topics 
         run: |
-          gh api -X PATCH /repos/${{ github.repository }} \
-          -f delete_branch_on_merge=true
+          curl -L \
+          -X PATCH \
+          -H "Accept: application/vnd.github+json" \
+          -H "Authorization: Bearer ${{ env.GH_TOKEN }}" \
+          -H "X-GitHub-Api-Version: 2022-11-28" \
+          https://api.github.com/repos/${{ github.repository }} \
+          -d '{
+            "delete_branch_on_merge":"true",
+            "allow_update_branch":"true",
+            "default_branch":"master"
+          }'
+        env:
+          GH_TOKEN: ${{ steps.generate-token.outputs.token }}
 
       - name: Protect master branch
         run: |
-          curl -X PUT -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-          -H "Accept: application/vnd.github.v3+json" \
+          curl \
+          -X PUT \
+          -H "Authorization: Bearer ${{ env.GH_TOKEN }}" \
+          -H "Accept: application/vnd.github+json" \
+          -H "X-GitHub-Api-Version: 2022-11-28" \
           https://api.github.com/repos/${{ github.repository }}/branches/master/protection \
           -d '{
             "required_status_checks": {
@@ -35,24 +77,23 @@ jobs:
             "restrictions": null,
             "required_conversation_resolution": true
           }'
+        env:
+          GH_TOKEN: ${{ steps.generate-token.outputs.token }}
 
       - name: Create slug from repository name
         id: create_slug
         run: |
           repo_name=$(echo "${{ github.repository }}" | awk -F/ '{print $2}')
-          slug=$(echo "${repo_name}" | tr '[:upper:]' '[:lower:]' | tr -c '[:alnum:]' '-')
+          slug=$(echo "${repo_name}" | tr '[:upper:]' '[:lower:]' | tr -c '[:alnum:]' '-' | sed 's/-*$//')
           echo "slug=$slug" >> $GITHUB_ENV
 
       - name: Add repository secrets
         run: |
-          gh secret set MODYO_ACCOUNT_URL --body "${{ secrets.MODYO_ACCOUNT_URL_CI }}"
-          gh secret set MODYO_TOKEN --body "${{ secrets.MODYO_TOKEN_CI }}"
-          gh secret set MODYO_SITE_ID_CATALOG --body "${{ secrets.MODYO_SITE_ID_CATALOG_CI }}"
-          gh secret set MODYO_SITE_ID_DEMO --body "${{ secrets.MODYO_SITE_ID_DEMO_CI }}"
           gh secret set MODYO_BUILD_DIRECTORY --body "build"
           gh secret set MODYO_DISABLE_LIQUID_REGEX --body "raw"
-          gh secret set MODYO_VERSION --body "10"
+
           gh secret set MODYO_WIDGET_NAME_CATALOG --body "${slug}"
           gh secret set MODYO_WIDGET_NAME_DEMO --body "${slug}"
         env:
           slug: ${{ env.slug }}
+          GH_TOKEN: ${{ steps.generate-token.outputs.token }}
