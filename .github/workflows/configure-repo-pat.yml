@@ -3,21 +3,18 @@ name: Configure Repository
 on:
   workflow_call:
 
+env:
+  GH_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
 jobs:
   configure:
+    name: 'Configure project with initial rules'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
-      - name: Generate new github app token
-        id: generate-token
-        uses: actions/create-github-app-token@v1
-        with:
-          app-id: ${{ vars.APP_ID }}
-          private-key: ${{ secrets.APP_PRIVATE_KEY }}
 
       - name: Set up teams
         run: |
@@ -35,7 +32,6 @@ jobs:
           /orgs/${{ env.DF_ORG }}/teams/${{ env.DF_ADMINS }}/repos/${{ github.repository }} \
           -f "permission=admin"
         env:
-          GH_TOKEN: ${{ steps.generate-token.outputs.token }}
           DF_ORG: 'dynamic-framework'
           DF_ADMINS: 'dynamic-framework-admins'
           DF_TEAM: 'dynamic-framework-team'
@@ -53,8 +49,6 @@ jobs:
             "allow_update_branch":"true",
             "default_branch":"master"
           }'
-        env:
-          GH_TOKEN: ${{ steps.generate-token.outputs.token }}
 
       - name: Protect master branch
         run: |
@@ -78,8 +72,6 @@ jobs:
             "restrictions": null,
             "required_conversation_resolution": true
           }'
-        env:
-          GH_TOKEN: ${{ steps.generate-token.outputs.token }}
 
       - name: Create slug from repository name
         id: create_slug
@@ -97,4 +89,3 @@ jobs:
           gh secret set MODYO_WIDGET_NAME_DEMO --body "${slug}"
         env:
           slug: ${{ env.slug }}
-          GH_TOKEN: ${{ steps.generate-token.outputs.token }}
