@@ -39,7 +39,7 @@ jobs:
           MODYO_BUILD_DIRECTORY: ${{secrets.MODYO_BUILD_DIRECTORY}}
 
       - name: Push to Dynamic Retail Demo
-        run: npm run push
+        run: npx @modyo/cli@latest push --publish
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
           MODYO_ACCOUNT_URL: ${{secrets.MODYO_ACCOUNT_URL}}
@@ -51,7 +51,7 @@ jobs:
           MODYO_DISABLE_LIQUID_REGEX: ${{secrets.MODYO_DISABLE_LIQUID_REGEX}}
       
       - name: Push to Dynamic Widgets Catalog
-        run: npm run push
+        run: npx @modyo/cli@latest push --publish
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
           MODYO_ACCOUNT_URL: ${{secrets.MODYO_ACCOUNT_URL}}
