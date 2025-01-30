@@ -7,6 +7,11 @@ jobs:
   configure:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
       - name: Generate new github app token
         id: generate-token
         uses: actions/create-github-app-token@v1
@@ -83,13 +88,13 @@ jobs:
           slug=$(echo "${repo_name}" | tr '[:upper:]' '[:lower:]' | tr -c '[:alnum:]' '-' | sed 's/-*$//')
           echo "slug=$slug" >> $GITHUB_ENV
 
-      - name: Add repository variables
+      - name: Add repository secrets
         run: |
-          gh variable set MODYO_BUILD_DIRECTORY --body "build"
-          gh variable set MODYO_DISABLE_LIQUID_REGEX --body "raw"
+          gh secret set MODYO_BUILD_DIRECTORY --body "build"
+          gh secret set MODYO_DISABLE_LIQUID_REGEX --body "raw"
 
-          gh variable set MODYO_WIDGET_NAME_CATALOG --body "${slug}"
-          gh variable set MODYO_WIDGET_NAME_DEMO --body "${slug}"
+          gh secret set MODYO_WIDGET_NAME_CATALOG --body "${slug}"
+          gh secret set MODYO_WIDGET_NAME_DEMO --body "${slug}"
         env:
           slug: ${{ env.slug }}
           GH_TOKEN: ${{ steps.generate-token.outputs.token }}
