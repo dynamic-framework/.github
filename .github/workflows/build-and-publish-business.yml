@@ -46,9 +46,9 @@ jobs:
           MODYO_VERSION: ${{secrets.MODYO_VERSION}}
           MODYO_TOKEN: ${{secrets.MODYO_TOKEN}}
           MODYO_SITE_ID: ${{secrets.MODYO_SITE_ID_DEMO_BUSINESS}}
-          MODYO_WIDGET_NAME: ${{secrets.MODYO_WIDGET_NAME_DEMO}}
-          MODYO_BUILD_DIRECTORY: ${{secrets.MODYO_BUILD_DIRECTORY}}
-          MODYO_DISABLE_LIQUID_REGEX: ${{secrets.MODYO_DISABLE_LIQUID_REGEX}}
+          MODYO_WIDGET_NAME: ${{vars.MODYO_WIDGET_NAME_DEMO}}
+          MODYO_BUILD_DIRECTORY: ${{vars.MODYO_BUILD_DIRECTORY}}
+          MODYO_DISABLE_LIQUID_REGEX: ${{vars.MODYO_DISABLE_LIQUID_REGEX}}
 
       - name: Push to Dynamic Widgets Catalog
         run: npx @modyo/cli@latest push --publish
@@ -58,6 +58,6 @@ jobs:
           MODYO_VERSION: ${{secrets.MODYO_VERSION}}
           MODYO_TOKEN: ${{secrets.MODYO_TOKEN}}
           MODYO_SITE_ID: ${{secrets.MODYO_SITE_ID_CATALOG}}
-          MODYO_WIDGET_NAME: ${{secrets.MODYO_WIDGET_NAME_CATALOG}}
-          MODYO_BUILD_DIRECTORY: ${{secrets.MODYO_BUILD_DIRECTORY}}
-          MODYO_DISABLE_LIQUID_REGEX: ${{secrets.MODYO_DISABLE_LIQUID_REGEX}}
+          MODYO_WIDGET_NAME: ${{vars.MODYO_WIDGET_NAME_CATALOG}}
+          MODYO_BUILD_DIRECTORY: ${{vars.MODYO_BUILD_DIRECTORY}}
+          MODYO_DISABLE_LIQUID_REGEX: ${{vars.MODYO_DISABLE_LIQUID_REGEX}}
