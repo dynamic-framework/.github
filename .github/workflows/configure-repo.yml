@@ -90,11 +90,11 @@ jobs:
 
       - name: Add repository secrets
         run: |
-          gh variable set MODYO_BUILD_DIRECTORY --body "build"
-          gh variable set MODYO_DISABLE_LIQUID_REGEX --body "raw"
+          gh secret set MODYO_BUILD_DIRECTORY --body "build"
+          gh secret set MODYO_DISABLE_LIQUID_REGEX --body "raw"
 
-          gh variable set MODYO_WIDGET_NAME_CATALOG --body "${slug}"
-          gh variable set MODYO_WIDGET_NAME_DEMO --body "${slug}"
+          gh secret set MODYO_WIDGET_NAME_CATALOG --body "${slug}"
+          gh secret set MODYO_WIDGET_NAME_DEMO --body "${slug}"
         env:
           slug: ${{ env.slug }}
           GH_TOKEN: ${{ steps.generate-token.outputs.token }}
