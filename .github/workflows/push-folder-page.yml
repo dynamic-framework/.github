@@ -1,0 +1,42 @@
+name: Push folder page
+
+on:
+  workflow_call:
+    inputs:
+      source_folder:
+        description: 'Folder to push to GitHub Pages branch'
+        required: true
+        default: 'docs'
+      target_branch:
+        description: 'Branch to push to (e.g., docs)'
+        required: true
+        default: 'docs'
+      target_folder:
+        description: 'Folder in the target branch to push to'
+        required: true
+        default: 'docs'
+      commit_message:
+        description: 'Commit message for the push'
+        required: false
+        default: 'docs: update doc page'
+      clean:
+        description: 'Whether to clean the target folder before push (true/false)'
+        required: false
+        default: 'true'
+
+permissions:
+  contents: write 
+
+jobs:
+  deploy-page:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Push folder page 🚀
+        uses: ./.github/actions/push-folder-page
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          source_folder: ${{ inputs.source_folder }}
+          target_branch: ${{ inputs.target_branch }}
+          target_folder: ${{ inputs.target_folder }}
+          commit_message: ${{ inputs.commit_message }}
+          clean: ${{ inputs.clean }}

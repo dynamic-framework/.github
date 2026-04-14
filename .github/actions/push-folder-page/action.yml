@@ -1,0 +1,78 @@
+name: 'Push folder to GitHub Pages Branch'
+
+description: 'Push folder into GitHub Pages branch at root level.'
+
+inputs:
+  source_folder:
+    required: true
+  target_branch:
+    required: true
+  target_folder:
+    required: true
+  commit_message:
+    required: false
+    default: 'doc: update pages'
+  clean:
+    required: false
+    default: 'true'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Configure Git
+      shell: bash
+      run: |
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+
+    - name: Push folder to GitHub Pages branch
+      shell: bash
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        set -e
+        SOURCE="${{ inputs.source_folder }}"
+        TARGET_BRANCH="${{ inputs.target_branch }}"
+        TARGET_FOLDER="${{ inputs.target_folder }}"
+        CLEAN="${{ inputs.clean }}"
+        COMMIT_MSG="${{ inputs.commit_message }}"
+        REPO_URL="https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git"
+
+        TMP_DIR=$(mktemp -d)
+        rsync -av "${SOURCE}/" "${TMP_DIR}/"
+
+        git fetch origin "${TARGET_BRANCH}" || true
+
+        if git ls-remote --exit-code --heads origin "${TARGET_BRANCH}" > /dev/null 2>&1; then
+          git checkout "${TARGET_BRANCH}"
+          git reset --hard "origin/${TARGET_BRANCH}"
+        else
+          git checkout --orphan "${TARGET_BRANCH}"
+          git rm -rf . 2>/dev/null || true
+        fi
+
+        # Create target folder and copy content
+        if [ "${CLEAN}" = "true" ]; then
+          rm -rf "${TARGET_FOLDER}"
+        fi
+        mkdir -p "${TARGET_FOLDER}"
+        rsync -av "${TMP_DIR}/" "${TARGET_FOLDER}/"
+
+        # Create .nojekyll if not exists to prevent GitHub Pages from ignoring files/folders starting with '_'
+        if [ ! -f .nojekyll ]; then
+          touch .nojekyll
+          git add .nojekyll
+          echo ".nojekyll created"
+        else
+          echo ".nojekyll already exists"
+        fi
+
+        git add "${TARGET_FOLDER}"
+
+        if git diff --cached --quiet; then
+          echo "No changes to commit"
+          exit 0
+        fi
+
+        git commit -m "${COMMIT_MSG}"
+        git push "${REPO_URL}" "${TARGET_BRANCH}"
