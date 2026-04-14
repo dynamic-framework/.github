@@ -37,7 +37,7 @@ runs:
     - name: Push folder to GitHub Pages branch
       shell: bash
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ github.token }}
       run: |
         set -e
         SOURCE="${{ inputs.source_folder }}"
