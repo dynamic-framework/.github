@@ -27,14 +27,6 @@ jobs:
             .github
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: List folders and files
-        run: |
-          ls
-      
-      - name: Verify files
-        run: |
-          ls -R workflows/.github
-
       - name: Labeler
         uses: actions/labeler@v6
         with:
