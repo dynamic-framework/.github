@@ -7,7 +7,7 @@ on:
         description: 'Path to the labeler configuration file'
         required: false
         type: string
-        default: './dynamic-framework/.github/labeler.yml'
+        default: 'dynamic-framework/.github/labeler.yml'
 
 jobs:
   pr-labeler:
