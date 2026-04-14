@@ -7,7 +7,7 @@ on:
         description: 'Path to the labeler configuration file'
         required: false
         type: string
-        default: 'dynamic-framework/.github/labeler.yml'
+        default: 'workflows/.github/labeler.yml'
 
 jobs:
   pr-labeler:
@@ -21,8 +21,19 @@ jobs:
         uses: actions/checkout@v6
         with:
           repository: dynamic-framework/.github
-          path: ./dynamic-framework/.github
+          ref: feat/own-workflows-actions
+          path: workflows
+          sparse-checkout: |
+            .github
           token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: List folders and files
+        run: |
+          ls
+      
+      - name: Verify files
+        run: |
+          ls -R workflows/.github
 
       - name: Labeler
         uses: actions/labeler@v6
