@@ -1,8 +1,16 @@
-chore: 'chore/*'
-ci: 'ci/*'
-docs: 'docs/*'
-feat: 'feat/*'
-fix: 'fix/*'
-refactor: 'refactor/*'
-style: 'style/*'
-test: 'test/*'
+feature:
+  - head-branch: ["^feature/", "^feat/"]
+fix:
+  - head-branch: ["^fix/", "^bug/"]
+enhancement:
+  - head-branch: ["^enhancement/", "^improvement/"]
+refactor:
+  - head-branch: ["^refactor/"]
+docs:
+  - head-branch: ["^docs/"]
+chore:
+  - head-branch: ["^chore/"]
+test:
+  - head-branch: ["^test/"]
+style:
+  - head-branch: ["^style/"]

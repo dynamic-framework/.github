@@ -1,15 +1,17 @@
-name: Labeler
+name: PR Labeler
 
 on:
   workflow_call:
 
 jobs:
   pr-labeler:
-    name: Labeling Job
+    permissions:
+        contents: read
+        pull-requests: write
+        issues: write
     runs-on: ubuntu-latest
     steps:
-      - uses: TimonVS/pr-labeler-action@v5
+      - name: Labeler
+        uses: actions/labeler@v6
         with:
-          configuration-path: .github/labeler.yml # optional, .github/pr-labeler.yml is the default value
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
