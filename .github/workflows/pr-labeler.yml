@@ -6,6 +6,7 @@ on:
       configuration-path:
         description: 'Path to the labeler configuration file'
         required: false
+        type: string
         default: './dynamic-framework/.github/labeler.yml'
 
 jobs:
