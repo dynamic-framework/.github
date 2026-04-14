@@ -2,6 +2,11 @@ name: PR Labeler
 
 on:
   workflow_call:
+    inputs:
+      configuration-path:
+        description: 'Path to the labeler configuration file'
+        required: false
+        default: './dynamic-framework/.github/labeler.yml'
 
 jobs:
   pr-labeler:
@@ -11,7 +16,15 @@ jobs:
         issues: write
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout dynamic-framework/.github repository
+        uses: actions/checkout@v6
+        with:
+          repository: dynamic-framework/.github
+          path: ./dynamic-framework/.github
+          token: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Labeler
         uses: actions/labeler@v6
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
+          configuration-path: ${{ inputs.configuration-path }}
